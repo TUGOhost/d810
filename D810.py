@@ -41,8 +41,9 @@ class D810Plugin(idaapi.plugin_t):
             clear_logs(real_log_dir)
 
         configure_loggers(real_log_dir)
-        self.state = D810State(self.d810_config)
         print("D-810 reloading...")
+        print("D-810 logs will be saved to: {0}".format(real_log_dir))
+        self.state = D810State(self.d810_config)
         self.state.start_plugin()
         self.initialized = True
 
@@ -54,10 +55,15 @@ class D810Plugin(idaapi.plugin_t):
             return idaapi.PLUGIN_SKIP
 
         kv = ida_kernwin.get_kernel_version().split(".")
-        if (int(kv[0]) < 7) or (int(kv[1]) < 5):
+        major_version = int(kv[0])
+        minor_version = int(kv[1]) if len(kv) > 1 else 0
+
+        # Support IDA >= 7.5 (including IDA 9.x)
+        if major_version < 7 or (major_version == 7 and minor_version < 5):
             print("D-810 need IDA version >= 7.5. Skipping")
             return idaapi.PLUGIN_SKIP
-        print("D-810 initialized (version {0})".format(D810_VERSION))
+
+        print("D-810 initialized (version {0}) on IDA {1}".format(D810_VERSION, ida_kernwin.get_kernel_version()))
         return idaapi.PLUGIN_OK
 
 
