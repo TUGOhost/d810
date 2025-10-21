@@ -1,5 +1,6 @@
 import os
 import json
+import tempfile
 
 
 class D810Configuration(object):
@@ -11,15 +12,25 @@ class D810Configuration(object):
 
     def get(self, name):
         if (name == "log_dir") and (self._options[name] is None):
-            return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+            # IDA 9.x compatibility: Use temp directory to avoid permission issues
+            # when IDA is installed in Program Files
+            temp_dir = tempfile.gettempdir()
+            return os.path.join(temp_dir, "d810")
         return self._options[name]
 
     def set(self, name, value):
         self._options[name] = value
 
     def save(self):
-        with open(self.config_file, "w") as fp:
-            json.dump(self._options, fp, indent=2)
+        try:
+            with open(self.config_file, "w") as fp:
+                json.dump(self._options, fp, indent=2)
+        except (PermissionError, OSError) as e:
+            # IDA 9.x compatibility: If IDA is installed in Program Files,
+            # we may not have permission to save config. This is not critical.
+            print("D-810: Warning - Could not save configuration to {0}: {1}".format(
+                self.config_file, str(e)))
+            print("D-810: Configuration changes will not persist after restart")
 
 
 class RuleConfiguration(object):
@@ -69,5 +80,12 @@ class ProjectConfiguration(object):
             "ins_rules": [x.to_dict() for x in self.ins_rules],
             "blk_rules": [x.to_dict() for x in self.blk_rules],
         }
-        with open(self.path, "w") as fp:
-            json.dump(project_conf, fp, indent=2)
+        try:
+            with open(self.path, "w") as fp:
+                json.dump(project_conf, fp, indent=2)
+        except (PermissionError, OSError) as e:
+            # IDA 9.x compatibility: If IDA is installed in Program Files,
+            # we may not have permission to save config. This is not critical.
+            print("D-810: Warning - Could not save project configuration to {0}: {1}".format(
+                self.path, str(e)))
+            print("D-810: Project configuration changes will not persist after restart")
