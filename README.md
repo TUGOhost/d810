@@ -17,13 +17,15 @@ It was designed with the following goals in mind:
 
 # Installation
 
-**Only IDA v7.5 or later is supported with Python 3.7 and higher** (since we need the microcode Python API) 
+**IDA v7.5 or later is supported with Python 3.7 and higher** (since we need the microcode Python API)
+
+**IDA v9.0 and v9.1 are also supported** - the plugin has been patched for compatibility
 
 Copy this repository in `.idapro/plugins`
 
 We recommend to install Z3 to be able to use several features of D-810:
 ```bash
-pip3 install z3-solver 
+pip3 install z3-solver
 ```
 
 # Using D-810
@@ -44,6 +46,13 @@ This plugin is still in early stage of development, so issues ~~may~~ will happe
 
  * Modifying incorrectly IDA microcode may lead IDA to crash. We try to detect that as much as possible to avoid crash, but since it may still happen **save you IDA database often**
  * We only tested this plugin on Linux, but it should work on Windows too.
+
+# IDA 9.x Notes
+
+When using IDA 9.0 or 9.1, especially when IDA is installed in `C:\Program Files\`:
+ * Log files are saved to your system's temporary directory (e.g., `%TEMP%\d810\d810_logs\`) to avoid permission issues
+ * The plugin will display the log directory path when it starts
+ * Configuration changes may not persist if the plugin is installed in a protected directory - this is normal and does not affect functionality
 
 # Documentation
 
